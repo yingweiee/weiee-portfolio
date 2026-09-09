@@ -290,12 +290,12 @@
        the frame. Everything here is caption-only (the masthead and footer
        read from the meta tokens, which are left alone), and the height it
        gives up goes to the stage, which is the frame. */
-    --text-display-size:    40px;
-    --text-body-size:       15px;  --text-body-leading:    21px;
-    --text-eyebrow-size:    13px;  --text-eyebrow-leading: 20px;
-    --gap-caption:          18px;
-    --gap-title-body:        8px;
-    --pad-caption:          16px;
-    --pad-caption-end:      16px;
+    --text-display-size:    36px;
+    --text-body-size:       14px;  --text-body-leading:    20px;
+    --text-eyebrow-size:    12px;  --text-eyebrow-leading: 18px;
+    --gap-caption:          16px;
+    --gap-title-body:        6px;
+    --pad-caption:          14px;
+    --pad-caption-end:      14px;
   }
 }

@@ -832,7 +832,14 @@ body {
 .stage {
   position: relative;
   flex: 1 1 0;
-  max-height: var(--frame-size);
+  /* Never taller than it is wide. The frame is a square whose width is capped
+     at the stage's width; on a phone with more height than width the stage
+     used to keep growing past that, the frame's box went tall and narrow,
+     `object-position: bottom` dropped the painted frame to the foot of that
+     box — and fitSlides, measuring from the box's top, seated the artwork
+     30px above where the frame actually was. It showed as a band of picture
+     over the monitor's bezel. Square stage, square frame, same top edge. */
+  max-height: min(var(--frame-size), 100vw);
   min-height: 140px;
   display: flex;
   align-items: center;
