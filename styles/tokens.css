@@ -59,6 +59,11 @@
      in a 394px column. */
   --text-body-size:      17px;  --text-body-leading:    24px;  --text-body-tracking:    0.01em;
   --text-meta-size:      15px;  --text-meta-leading:    24px;  --text-meta-tracking:    0.04em;
+  /* The eyebrow over the title. Meta's voice, but its own dial: on a phone it
+     comes down with the title and description while the byline, counter and
+     colophon — the other meta text — keep their size. */
+  --text-eyebrow-size:   var(--text-meta-size);
+  --text-eyebrow-leading: var(--text-meta-leading);
   /* The links sit a point above the rest of the meta voice — the pixel face
      reads a touch smaller than the italic at the same size. */
   --text-link-size:      16px;
@@ -280,5 +285,17 @@
 @media (max-width: 640px) {
   :root {
     --gutter: var(--space-5);
+
+    /* The caption at desktop size took 306 of 812px on a phone — more than
+       the frame. Everything here is caption-only (the masthead and footer
+       read from the meta tokens, which are left alone), and the height it
+       gives up goes to the stage, which is the frame. */
+    --text-display-size:    40px;
+    --text-body-size:       15px;  --text-body-leading:    21px;
+    --text-eyebrow-size:    13px;  --text-eyebrow-leading: 20px;
+    --gap-caption:          18px;
+    --gap-title-body:        8px;
+    --pad-caption:          16px;
+    --pad-caption-end:      16px;
   }
 }

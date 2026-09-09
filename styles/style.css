@@ -1084,8 +1084,8 @@ body {
 
 .caption__eyebrow {
   font-style: italic;
-  font-size: var(--text-meta-size);
-  line-height: var(--text-meta-leading);
+  font-size: var(--text-eyebrow-size);
+  line-height: var(--text-eyebrow-leading);
   letter-spacing: var(--text-meta-tracking);
   font-feature-settings: var(--ff-ui);
   color: var(--color-mid);
@@ -1144,6 +1144,11 @@ body {
   font-size: var(--text-body-size);
   line-height: var(--text-body-leading);
   letter-spacing: var(--text-body-tracking);
+  /* No orphans. At phone width the descriptions run to four lines and the
+     last one was landing a single word ("CX.") on its own; this asks the
+     browser to rebalance the final lines instead. Progressive — a browser
+     without it just wraps as before. */
+  text-wrap: pretty;
   font-feature-settings: var(--ff-body);
   color: var(--color-mid);
 }
