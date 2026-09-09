@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="20"
+     viewBox="0 0 5 10" shape-rendering="crispEdges">
+  <!-- The I-beam, for anything selectable.
+
+       The crossbars break where the stem passes, which is the drawing's own
+       character and not a gap to close. The hotspot is the middle of the
+       stem, the way a caret sits between two letters.
+
+       Same treatment as pen.svg: a 5x10 block grid redrawn onto a
+       5-unit viewBox, so at 10x20 every block is exactly 2 CSS px and
+       lands whole at 1x, 1.5x and 2x. The three cursors share that 2px
+       cell, which is what keeps them a set rather than three drawings.
+
+       The hotspot is set in the CSS. -->
+  <g fill="#484235">
+    <rect x="0" y="0" width="2" height="1"/>
+    <rect x="3" y="0" width="2" height="1"/>
+    <rect x="2" y="1" width="1" height="1"/>
+    <rect x="2" y="2" width="1" height="1"/>
+    <rect x="2" y="3" width="1" height="1"/>
+    <rect x="2" y="4" width="1" height="1"/>
+    <rect x="2" y="5" width="1" height="1"/>
+    <rect x="2" y="6" width="1" height="1"/>
+    <rect x="2" y="7" width="1" height="1"/>
+    <rect x="2" y="8" width="1" height="1"/>
+    <rect x="0" y="9" width="2" height="1"/>
+    <rect x="3" y="9" width="2" height="1"/>
+  </g>
+</svg>

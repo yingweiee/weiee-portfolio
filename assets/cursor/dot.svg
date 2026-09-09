@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+  <!-- A dot about the size of the mark it makes. The hotspot is its centre,
+       so the ink lands under the dot rather than beside it. The canvas stays
+       12x12 so the 6,6 hotspot in the CSS keeps pointing at the middle. -->
+  <circle cx="6" cy="6" r="2.4" fill="#ada89b"/>
+</svg>

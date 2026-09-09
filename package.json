@@ -1,0 +1,13 @@
+{
+  "name": "weiee-portfolio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "latest dabblings by weiee — a small shelf of work",
+  "scripts": {
+    "dev": "python3 tools/serve.py",
+    "sync:cuelume": "python3 tools/sync-cuelume.py"
+  },
+  "dependencies": {
+    "cuelume": "^0.2.2"
+  }
+}

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+     viewBox="0 0 10 10" shape-rendering="crispEdges">
+  <!-- The pen, one rect per pixel-art block.
+
+       Redrawn from a 32x32 export whose blocks sat on a 3-unit pitch at a
+       1-unit offset. On a 10-unit viewBox each block is exactly 1 unit, so at
+       20px the artwork lands on whole CSS pixels — and on whole device pixels
+       at 1x, 1.5x and 2x. Off-grid sizes soften the staircase, which is the
+       whole character of the drawing, so change the 20 in pairs of 10s.
+
+       20px is about the extent of a system arrow. The source filled a 32x32
+       box, which next to real cursors reads as an oversized sticker.
+
+       The body is the page colour and the outline the page's darkest ink
+       (color-surface and color-high in the tokens), so it reads as an outline
+       on paper and stays legible over the frame and the video clips. Left as
+       literals: a cursor file is fetched on its own and inherits nothing. Two
+       hyphens cannot appear inside an XML comment, so the tokens go unnamed.
+
+       The hotspot is set in the CSS, on the nib at the bottom-left. -->
+  <g fill="#EBE8E0">
+    <rect x="7" y="1" width="1" height="1"/>
+    <rect x="6" y="2" width="3" height="1"/>
+    <rect x="5" y="3" width="3" height="1"/>
+    <rect x="4" y="4" width="3" height="1"/>
+    <rect x="3" y="5" width="3" height="1"/>
+    <rect x="2" y="6" width="3" height="1"/>
+    <rect x="1" y="7" width="3" height="1"/>
+    <rect x="1" y="8" width="2" height="1"/>
+  </g>
+  <g fill="#484235">
+    <rect x="7" y="0" width="1" height="1"/>
+    <rect x="6" y="1" width="1" height="1"/>
+    <rect x="8" y="1" width="1" height="1"/>
+    <rect x="5" y="2" width="1" height="1"/>
+    <rect x="9" y="2" width="1" height="1"/>
+    <rect x="4" y="3" width="1" height="1"/>
+    <rect x="8" y="3" width="1" height="1"/>
+    <rect x="3" y="4" width="1" height="1"/>
+    <rect x="7" y="4" width="1" height="1"/>
+    <rect x="2" y="5" width="1" height="1"/>
+    <rect x="6" y="5" width="1" height="1"/>
+    <rect x="1" y="6" width="1" height="1"/>
+    <rect x="5" y="6" width="1" height="1"/>
+    <rect x="0" y="7" width="1" height="1"/>
+    <rect x="4" y="7" width="1" height="1"/>
+    <rect x="0" y="8" width="1" height="1"/>
+    <rect x="3" y="8" width="1" height="1"/>
+    <rect x="0" y="9" width="3" height="1"/>
+  </g>
+</svg>

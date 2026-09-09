@@ -1,0 +1,22 @@
+# Dev-only. Nothing here is fetched by the page.
+tools/
+.claude/
+node_modules/
+README.md
+
+# Raw Figma exports. Not dead — tools/make-squiggles.py, make-splats.py and
+# trim-props.py read these to regenerate what the page does load, so they stay
+# in the repo. They just have no business being served.
+**/_src/
+
+# Out of the Compositions playlist. The original is kept; it is not shipped.
+assets/works/compositions/compositions-asset-04.webm
+
+# The PNG exports every image was converted from. They are the originals and
+# they stay in the repo — tools/measure-frame.py still reads them, and a
+# re-export starts from one — but the page loads only the .webp beside them.
+assets/**/*.png
+
+# The previous version of the site. Kept in the repo, not published — drop
+# this line to serve it at /v1/.
+v1/

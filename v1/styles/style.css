@@ -1,0 +1,1301 @@
+/* ==========================================================================
+   Base designs — desktop / tablet / mobile
+   Every value here resolves to a token in tokens.css.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ reset */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* no blue flash on tap — the sweep is the feedback */
+  -webkit-tap-highlight-color: transparent;
+  /* the filmstrip deliberately bleeds past the page column — clip it at the
+     viewport rather than letting it open a horizontal scrollbar */
+  overflow-x: clip;
+}
+
+body,
+h1, p {
+  margin: 0;
+}
+
+img { display: block; max-width: 100%; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------- backdrop */
+/* Fixed and behind `.page`, which carries `z-index: 1`. The canvas holds the
+   dithered frame at one pixel per dot and CSS scales it up, so the dots stay
+   square instead of being resampled into mush. */
+.backdrop {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  height: var(--backdrop-height);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.backdrop canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: var(--backdrop-opacity);
+  image-rendering: pixelated;
+
+  /* Faded out at the top so the band reads as a horizon the page sits above,
+     rather than as a rectangle pasted across the bottom. The fade is on the
+     mask, not the opacity, so the dots nearest the bottom keep their full
+     weight. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 38%);
+  mask-image: linear-gradient(to bottom, transparent, #000 38%);
+}
+
+/* The selection takes the current project's highlighter colour. All five are
+   pale, so the dark text reads on any of them — but the colour has to be set
+   explicitly, because a browser left to itself pairs its own blue with white
+   text and would drop the contrast the moment the background changed. */
+::selection {
+  background-color: var(--color-select);
+  color: var(--color-high);
+}
+
+/* ------------------------------------------------------------------- page */
+body {
+  display: block;
+
+  background: var(--color-surface);
+  color: var(--color-mid);
+  font-family: var(--font-serif);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* Exactly one viewport, pinned above the scroll steps. Full width now: the
+   masthead and footer are bars that run edge to edge, and only the caption is
+   held to the content column. The stage gets whatever is left. */
+.page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* -------------------------------------------------------- type primitives */
+/* The two voices in the system: `meta` is the italic UI voice, `glyph` is
+   the upright one used for punctuation, arrows and the counter. */
+.t-meta,
+.t-glyph {
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-leading);
+  font-feature-settings: var(--ff-ui);
+}
+
+.t-meta {
+  font-style: italic;
+  letter-spacing: var(--text-meta-tracking);
+}
+
+.t-glyph {
+  font-style: normal;
+  letter-spacing: var(--text-glyph-tracking);
+}
+
+.t-high { color: var(--color-high); }
+.t-mid  { color: var(--color-mid); }
+.t-low  { color: var(--color-low); }
+
+.u-struck {
+  text-decoration: line-through;
+  text-decoration-skip-ink: none;
+}
+
+/* --------------------------------------------------------------- link */
+/* One component, four appearances. A block sweeps in from the left behind
+   the text — the same gesture on every interactive element. On arrival it
+   is full ink and the label drops out of it, so a hovered link reads as a
+   solid stamp rather than a highlighted word. */
+.link,
+.nav,
+.framer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.link__sweep {
+  position: absolute;
+  inset: var(--rule-inset) calc(var(--sweep-bleed) * -1);
+  background: var(--color-high);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--duration-out) var(--ease-out);
+}
+
+.link:hover  .link__sweep,
+.nav:hover   .link__sweep,
+.framer:hover .link__sweep,
+.link:focus-visible  .link__sweep,
+.nav:focus-visible   .link__sweep,
+.framer:focus-visible .link__sweep {
+  transform: scaleX(1);
+  transition-duration: var(--duration-in);
+}
+
+/* The links moved to the pixel face too — `visit link`, `twitter [x]`,
+   `contact [@]` and `weiee` all read as one voice in the design. */
+.link__text {
+  position: relative;
+  font-family: var(--font-pixel);
+  font-style: normal;
+  font-size: var(--text-link-size);
+  line-height: var(--text-meta-leading);
+  letter-spacing: var(--text-meta-tracking);
+  font-feature-settings: var(--ff-ui);
+  color: var(--color-high);
+  white-space: nowrap;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 0.085em;
+  transition: color var(--duration-out) var(--ease-out),
+              text-decoration-color var(--duration-out) var(--ease-out);
+}
+
+/* Dropped out of the ink. The underline is hidden by colour rather than by
+   `text-decoration: none`, so the text never reflows on hover. */
+.link:hover .link__text,
+.link:focus-visible .link__text {
+  color: var(--color-surface);
+  text-decoration-color: transparent;
+  transition-duration: var(--duration-in);
+}
+
+/* ------------------------------------------------------------------- nav */
+.nav__glyph {
+  position: relative;
+  font-size: var(--text-glyph-size);
+  line-height: var(--text-glyph-leading);
+  letter-spacing: var(--text-glyph-tracking);
+  font-feature-settings: var(--ff-ui);
+  color: var(--color-low);
+  /* Bracketed and underdotted in the pixel face, so the arrows read as the
+     same kind of thing as `twitter [x]` and `change frame [o]` rather than as
+     bare punctuation. The brackets sit inside the glyph so the rule runs
+     under them too. Handjet has no italic, so the slant is turned off
+     explicitly rather than left to be synthesised. */
+  font-family: var(--font-pixel);
+  font-style: normal;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 0.085em;
+  transition: color var(--duration-out) var(--ease-out),
+              text-decoration-color var(--duration-out) var(--ease-out);
+}
+
+/* Dropped out of the ink on hover, underline and all — the block behind it
+   is doing that job. */
+.nav:hover .nav__glyph,
+.nav:focus-visible .nav__glyph {
+  color: var(--color-surface);
+  text-decoration-color: transparent;
+  transition-duration: var(--duration-in);
+}
+
+/* ---------------------------------------------------------------- framer */
+.framer__text {
+  position: relative;
+  /* Same voice as the links — it is a control, not a caption. */
+  font-family: var(--font-pixel);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-leading);
+  letter-spacing: var(--text-caption-tracking);
+  font-feature-settings: var(--ff-ui);
+  /* Dropped out of the ink, and stays that way — unlike the links, whose
+     block sweeps in on hover, this one wears the inverted state as its
+     resting look. There is no hover change left to make. */
+  color: var(--color-surface);
+  white-space: nowrap;
+  text-decoration: underline dotted;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 0.085em;
+}
+
+/* The block is on permanently rather than sweeping in. */
+.framer .link__sweep { transform: scaleX(1); }
+
+/* -------------------------------------------------------------- squiggles */
+/* Pencil doodles scattered around the page. First child of `.page`, and the
+   sections after it are positioned too, so tree order alone puts these behind
+   the content — no z-index arms race. */
+.squiggles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--color-squiggle);
+}
+
+/* Placed by centre, at the artwork's own size: the doodles are drawn at one
+   scale and the layout around them is capped rather than fluid, so growing
+   them with the viewport would only make them oversized on a big screen. */
+.squiggle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: auto;
+  translate: -50% -50%;
+}
+
+/* Hidden until its turn comes round. Kept in the tree rather than added and
+   removed, so the boil filter each one carries survives between turns.
+
+   Two classes, because the drawing and the showing have to come apart: the
+   ink holds its drawn state on `is-drawn` while `is-up` fades the whole
+   doodle out. Driving both from one class would snap the paths back to
+   undrawn mid-fade, and you would watch the drawing vanish before it faded. */
+.squiggle {
+  opacity: 0;
+  transition: opacity var(--squiggle-wipe) var(--ease-out);
+}
+
+.squiggle.is-up {
+  opacity: 1;
+  /* In fast — the pen stroke is the entrance, not the fade. */
+  transition-duration: 120ms;
+}
+
+/* `pathLength="1"` normalises every path to unit length, so one dash pattern
+   and one keyframe drive all of them whatever their real size: a dash long
+   enough to cover the path, pushed fully off the end, then wound back on. */
+.squiggle .ink {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+/* One turn, once — the rotation is driven from script, so this runs on demand
+   rather than looping. The stagger is `animation-delay`, which walks the paths
+   in the order the pen drew them, and `both` holds the last frame so the
+   doodle stays drawn for as long as it is up. */
+.squiggle.is-drawn .ink {
+  animation: squiggle-draw var(--squiggle-draw) var(--ease-out) both;
+  animation-delay: calc(var(--i) * var(--squiggle-step));
+}
+
+@keyframes squiggle-draw {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* The handwritten note that arrives beside a doodle. Placed by its own
+   centre rather than offset from the drawing: in the design they sit at
+   genuinely different distances and angles from what they annotate, and an
+   offset rule would flatten that into a caption. */
+.squiggle-note {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  /* `--x`/`--y` are the doodle's centre; `--dx`/`--dy` carry the note out
+     from it. Both halves of the translate matter: the -50% centres the note
+     on itself, the offset places that centre. */
+  translate: calc(-50% + var(--dx, 0px)) calc(-50% + var(--dy, 0px));
+  rotate: var(--tilt, 0deg);
+
+  color: var(--color-squiggle);
+  font-family: var(--font-hand);
+  font-size: var(--text-note-size);
+  /* Set tight, and it has to be: the words are inline-blocks, and an
+     inline-block sits on the baseline with its descent hanging below, so a
+     line box grows past its own line-height unless the words are pulled off
+     the baseline (see `.w`). */
+  line-height: var(--note-leading);
+  text-align: center;
+  white-space: pre-line;      /* the line breaks are drawn, not wrapped */
+  pointer-events: none;
+
+  opacity: 0;
+  transition: opacity var(--squiggle-wipe) var(--ease-out);
+}
+
+/* Lines are their own blocks rather than newlines in one run: the words need
+   to be elements to be staggered, and once they are, letting the browser
+   rewrap them would fight the breaks the design already chose. Being blocks
+   is also what puts real line breaks on the clipboard — no separator nodes
+   needed between them, and a stray one would open a gap of its own. */
+.squiggle-note__line {
+  display: block;
+  white-space: nowrap;
+}
+
+/* `top`, not the default baseline: a baseline-aligned inline-block hangs its
+   descent below the line, which added about 40% to every line box here. Their
+   height already matches the strut, so aligning to the top costs nothing and
+   the leading becomes exactly what it says it is. */
+.squiggle-note .w {
+  display: inline-block;
+  vertical-align: top;
+  clip-path: inset(0 100% 0 0);
+}
+
+.squiggle-note.is-up {
+  opacity: 1;
+  /* In fast — the writing is the entrance, not the fade. */
+  transition-duration: 120ms;
+}
+
+/* Written on left to right, at the same pace the doodle is drawn, so the two
+   read as one gesture rather than a drawing plus a caption. A wipe rather
+   than a fade: ink arrives, it does not develop. */
+/* `both` matters: during the delay the `from` frame applies, so each word
+   sits fully clipped while the doodle is still being drawn, rather than
+   flashing in and waiting. `--note-delay` is the doodle's own drawing time,
+   set per turn in script; `--wi` is the word's place in the note, counted
+   across lines so the stagger runs through the whole thing. */
+.squiggle-note.is-written .w {
+  animation: word-write var(--note-word-in) linear both;
+  animation-delay: calc(var(--note-delay, 0ms) + var(--wi) * var(--note-word));
+}
+
+@keyframes word-write {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 -14% 0 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .squiggle .ink { animation: none; stroke-dashoffset: 0; }
+  .squiggle { transition: none; }
+  .squiggle-note { transition: none; }
+  .squiggle-note .w { animation: none; clip-path: none; }
+  /* No boil either — it is the same restlessness by another means. */
+  .squiggle { filter: none !important; }
+}
+
+/* ----------------------------------------------------------------- props */
+/* Objects propped around the canvas. The layer is inert; each object takes
+   its own pointer events back, so the gaps between them stay clickable. */
+.props {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Placed by centre, at its own size — same reasoning as the doodles: the
+   layout around them is capped rather than fluid, so growing them with the
+   viewport would only make them oversized on a wide screen. */
+.prop {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  translate: -50% -50%;
+  pointer-events: auto;
+  scale: 1;
+  transition: scale var(--duration-out) var(--ease-out);
+}
+
+/* Driven by a measured rect rather than `:hover`, exactly as the frame is.
+   The chip sits under the cursor, so with `:hover` the pointer would land on
+   the chip, the object would stop being hovered, the chip would vanish, and
+   the whole thing would strobe. */
+.prop[data-near="true"] {
+  scale: var(--prop-lift);
+  transition-duration: var(--duration-in);
+}
+
+/* Two states in one frame. The resting picture is in flow and gives the
+   object its height; the hover state lies exactly over it. Both were cropped
+   to the same box by tools/trim-props.py, so the object itself never shifts —
+   only the part that is new to the second state appears. */
+.prop__art {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: opacity var(--duration-out) var(--ease-out);
+}
+
+.prop__art--live {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.prop[data-near="true"] .prop__art--rest { opacity: 0; }
+.prop[data-near="true"] .prop__art--live { opacity: 1; }
+
+.prop[data-near="true"] .prop__art { transition-duration: var(--duration-in); }
+
+/* The same chip the frame switch wears, carried the same way: centred on the
+   pointer, so the thing you are pointing at is the button. It is declared
+   before the objects, so without a z-index of its own each one paints over
+   it — which is exactly where it was hiding. */
+.prop-swap {
+  position: fixed;
+  z-index: 10;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  transform: translate(var(--prop-x, 50vw), var(--prop-y, 50vh));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--framer-h);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-out) var(--ease-out);
+}
+
+.props[data-near="true"] .prop-swap,
+.prop-swap:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transition-duration: var(--duration-in);
+}
+
+/* Block on permanently — this is its resting look, not a hover state. */
+.prop-swap .link__sweep { transform: scaleX(1); }
+
+/* While the chip is out it is the cursor, so the arrow steps aside. */
+:root[data-on-prop="true"] .cursor { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .prop, .prop[data-near="true"] { scale: 1; }
+}
+
+/* No room to scatter anything at phone width — they would land on the copy. */
+@media (max-width: 640px) {
+  .props { display: none; }
+}
+
+/* The doodles need the wide margins either side of the column, which only a
+   desktop window has. Below that they would sit on the work rather than
+   around it, so they are simply not drawn. */
+@media (max-width: 1024px) {
+  .squiggles { display: none; }
+}
+
+/* --------------------------------------------------------------- masthead */
+.masthead {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pad-bar);
+}
+
+.masthead__byline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.masthead__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-style: italic;
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-leading);
+  letter-spacing: var(--text-meta-tracking);
+  font-feature-settings: var(--ff-ui);
+  white-space: nowrap;
+}
+
+/* The frame switch. On a touchscreen there is no pointer to follow, so it
+   sits just inside the frame's bottom edge and stays put — `--frame-b` is
+   measured in script, so it tracks the frame at whatever size the stage
+   leaves it. Inside rather than astride: the gap below the frame closes up
+   at short viewports, and a control straddling the edge would land on the
+   eyebrow. */
+.framer {
+  position: absolute;
+  z-index: 3;                       /* over the frame, under the cursor */
+  left: 50%;
+  top: calc(var(--frame-b, 50%) - var(--framer-h) - var(--space-2));
+  translate: -50% 0;
+  height: var(--framer-h);
+  border: 0;
+  background: transparent;          /* the block behind the text is the look */
+  cursor: pointer;
+  transition: opacity var(--duration-out) var(--ease-out);
+}
+
+/* Given a pointer to follow, it becomes the cursor instead: out of sight
+   until the pointer touches the frame, then carried along with it. Centred
+   on the pointer rather than trailing it — offset it and there would be
+   nothing under the cursor to click. */
+@media (hover: hover) {
+  .framer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    translate: -50% -50%;
+    /* Tracking is `transform` and centring is `translate`, kept on separate
+       properties so the fade can ease while the tracking stays instant. */
+    transform: translate(var(--framer-x, 50vw), var(--framer-y, 50vh));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Keyboard users get it without a pointer ever coming near. */
+  .stage[data-near="true"] .framer,
+  .framer:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transition-duration: var(--duration-in);
+  }
+
+  /* The arrow and the switch would otherwise sit on the same pixel. While
+     the switch is out, it is the cursor. */
+  :root[data-on-frame="true"] .cursor { opacity: 0; }
+}
+
+/* The picture and its frame, as one object. The scale lives here rather than
+   on the two of them separately: scaling each about its own centre would pull
+   them apart, because the frame's centre and the artwork's are not the same
+   point — the work sits at ART_CY, above the middle. One transform on the pair
+   keeps every relationship exactly as it was, whatever the frame's window is
+   doing.
+
+   Laid over the stage rather than inside its flow, so it also takes over the
+   centring the stage used to do. */
+.stage__lens {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Purely visual, and it spans the whole stage — left live it hit-tests over
+     everything in that band, which is what was swallowing the objects placed
+     up there. The stage itself still takes the clicks and swipes. */
+  pointer-events: none;
+}
+
+/* The lift is applied to the frame and to the current work only — the shelf
+   either side holds its size, so hovering picks one thing up rather than
+   swelling the whole row.
+
+   They stay locked together because both scale about the *frame's* centre.
+   The work is seated at ART_CY, above the middle of the frame, so its own
+   centre is not the frame's; `--art-origin-y` is that difference, measured in
+   script. Scale them about their own centres instead and the picture slides
+   inside the window. */
+.stage__frame,
+.slide[data-offset="0"] {
+  scale: 1;
+  transition: scale var(--duration-out) var(--ease-out);
+}
+
+.slide[data-offset="0"] {
+  transform-origin: 50% calc(50% + var(--art-origin-y, 0px));
+}
+
+.stage[data-near="true"] .stage__frame,
+.stage[data-near="true"] .slide[data-offset="0"] {
+  scale: var(--lift-scale);
+  transition-duration: var(--duration-in);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage__frame, .slide[data-offset="0"],
+  .stage[data-near="true"] .stage__frame,
+  .stage[data-near="true"] .slide[data-offset="0"] { scale: 1; }
+}
+
+/* ------------------------------------------------------------------ stage */
+/* The chrome above and below keeps the spacing the design specifies; the
+   stage is whatever is left, and the frame flexes into it. `flex: 1 1 0` so
+   the stage's height can never depend on the frame it contains. */
+.stage {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  /* claim horizontal drags for the carousel, leave vertical to the page */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* The stage carries its own cursor, so the native one gets out of the way.
+   Only where there's a real pointer to replace — never on touch. */
+@media (hover: hover) and (pointer: fine) {
+  .js .stage { cursor: none; }
+}
+
+/* The filmstrip is centred on the viewport and bleeds past the page column;
+   neighbouring works stay visible so the carousel reads as a shelf.
+   `--shift` is the carousel offset, in px, composed onto the centring. */
+.stage__strip {
+  --shift: 0px;
+  position: absolute;
+  /* Seated on the frame's opening, not on the stage — the monitor's screen
+     sits above centre, so the shelf has to sit there too. */
+  top: var(--art-cy, 50%);
+  left: 50%;
+  translate: -50% -50%;
+  z-index: 0;   /* the works travel behind the frame, never over it */
+  /* Solo: every work in the same grid cell, stacked, dissolving into one
+     another so no edge ever crosses the aperture. Shelf puts them back in a
+     row — see below. */
+  display: grid;
+}
+
+/* Shelf: the works laid out either side, the strip sliding past the opening.
+   The neighbours are the point of this mode, and the cost is that their edges
+   travel through the aperture on the way past — which is exactly why solo
+   exists. Switch with SHELF in scripts/app.js. */
+.stage__strip[data-mode="shelf"] {
+  display: flex;
+  align-items: center;
+  gap: var(--slide-gap);
+  translate: calc(-50% + var(--shift, 0px)) -50%;
+}
+
+.stage__strip[data-mode="shelf"] .slide {
+  grid-area: auto;
+  flex: none;
+}
+
+.stage__strip[data-mode="shelf"].is-settling {
+  transition: translate var(--duration-settle) var(--ease-out);
+}
+
+/* Only while a released swipe glides to rest. Scrolling never sets this —
+   there the works are pinned to the scroll position, frame by frame. */
+.stage__strip.is-settling .slide {
+  transition: transform var(--duration-settle) var(--ease-out);
+}
+
+.stage__strip.is-settling .slide img {
+  transition: opacity var(--duration-settle) var(--ease-out);
+}
+
+
+/* Cut to the current frame's opening. Not expressible in CSS alone: the
+   opening differs per frame, and percentages here would resolve against the
+   strip, whose size is what its own contents determine. The fallbacks are the
+   default frame's opening, for the no-JS case. */
+.slide {
+  grid-area: 1 / 1;          /* all of them in the one cell */
+  position: relative;
+  width: var(--art-w, calc(var(--frame-size) * 0.707));
+  height: var(--art-h, calc(var(--frame-size) * 0.616));
+}
+
+/* Two layers per work, stacked. The swap is a cut, not a fade — the pictures
+   are stills of one piece of work and at this speed a dissolve reads as mud.
+   Two layers rather than one src swap because the incoming picture is put on
+   the hidden layer and revealed in the same frame, so nothing can ever be
+   caught mid-repaint. */
+.slide .shot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+
+.slide .shot.is-on {
+  opacity: 1;
+  z-index: 1;
+}
+
+/* The shelf either side is seen through a screen — a checkerboard mask that
+   drops every other pixel, so the works read as halftoned rather than merely
+   faint. A mask rather than an overlay because an overlay would have to be
+   the page colour to work, and would then be wrong the moment anything sat
+   behind it.
+
+   Only the neighbours: the current work is never screened. */
+.slide:not([data-offset="0"]) .shot {
+  -webkit-mask-image: repeating-conic-gradient(#000 0% 25%, transparent 0% 50%);
+  mask-image: repeating-conic-gradient(#000 0% 25%, transparent 0% 50%);
+  -webkit-mask-size: calc(var(--dither-cell) * 2) calc(var(--dither-cell) * 2);
+  mask-size: calc(var(--dither-cell) * 2) calc(var(--dither-cell) * 2);
+}
+
+/* One work visible at a time, the rest fully out — a blank canvas either
+   side rather than a shelf. Resting values and the no-JS fallback; the script
+   writes the same numbers inline, interpolated, so a drag or a scroll passes
+   through the dissolve rather than cutting. */
+.slide[data-offset="0"] { opacity: 1; }
+.slide:not([data-offset="0"]) { opacity: 0; }
+
+/* Sits above the strip and, on desktop, spills 20px past the page column. */
+/* The frame takes the full height the stage was left, capped at its designed
+   600 and at the page column on narrow screens. Sizing it in CSS rather than
+   from script means it can never be stale: no observer has to fire for it to
+   be right after a font loads or a breakpoint flips. */
+.stage__frame {
+  position: relative;
+  z-index: 2;   /* always above the works */
+  flex: none;
+  height: 100%;
+  width: auto;
+  /* As large as the content column allows. Width comes from the height the
+     stage had to give, so these two caps are what stop it: the column on one
+     side, the designed ceiling on the other. */
+  max-width: 100%;
+  max-height: var(--frame-size);
+  aspect-ratio: 1;
+  object-fit: contain;
+  object-position: bottom;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------- graffiti */
+/* Same box as the frame, above everything — the splats are tagged *onto* the
+   picture, not tucked behind it. Placement is a percentage of that box, so
+   the graffiti travels and scales with the frame at every viewport. */
+.graffiti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: 3;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1;
+  max-width: 100%;
+  max-height: var(--frame-size);
+  pointer-events: none;
+}
+
+.splat {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  translate: -50% -50%;
+  width: var(--w);
+  height: auto;
+  overflow: visible;   /* the brush overruns its own viewBox */
+}
+
+/* Each dab waits its turn, then lands. `--i` is the dab's position along the
+   stroke, written in by tools/make-splats.py. Only `.dab` — plain `use` also
+   appears inside `<defs>`, and hiding those would blank the brush shape every
+   dab refers to. */
+.splat .dab { opacity: 0; }
+
+.graffiti .splat .dab {
+  animation: splat-ink var(--splat-fade) var(--ease-out) forwards;
+  animation-delay: calc(
+    var(--splat-begin) + var(--splat-delay, 0ms) + var(--i) * var(--splat-step)
+  );
+}
+
+@keyframes splat-ink {
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .graffiti .splat .dab { animation: none; opacity: 1; }
+}
+
+/* ---------------------------------------------------------------- caption */
+.caption {
+  /* Positioned so it paints after the doodle layer, which is positioned too
+     and comes first in the page — a static box would fall behind it. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-caption);
+  padding-block: var(--pad-caption) var(--pad-caption-end);
+  /* the one part still held to the content column */
+  width: 100%;
+  max-width: var(--measure-page);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  text-align: center;
+}
+
+.caption__eyebrow {
+  font-style: italic;
+  font-size: var(--text-meta-size);
+  line-height: var(--text-meta-leading);
+  letter-spacing: var(--text-meta-tracking);
+  font-feature-settings: var(--ff-ui);
+  color: var(--color-mid);
+}
+
+.caption__title {
+  /* Shrink-wrapped to its own text so the highlighter can be measured against
+     the words rather than the column — the stroke has to end where the title
+     ends, whatever the title happens to say. */
+  position: relative;
+  width: fit-content;
+  margin-inline: auto;
+  /* Back to the italic serif. The dither block that used to sit behind this
+     has moved up to the project type. */
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: var(--text-display-weight);
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-leading);
+  letter-spacing: var(--text-display-tracking);
+  font-feature-settings: var(--ff-display);
+  color: var(--color-high);
+}
+
+/* A 2px checkerboard behind the title, hugging the text — so it grows and
+   shrinks with the name rather than sitting in a fixed box. `inline-block` is
+   what makes that automatic. */
+.caption__mark {
+  display: inline-block;
+  /* The project type is one line by design — "David AI" has a break
+     opportunity in it and would otherwise take one. */
+  white-space: nowrap;
+}
+
+/* Figma spaces the three text blocks 16 apart and the link 20 below them. */
+.caption > .link { margin-top: 4px; }
+
+.caption__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Every description reserves the height of the longest one, measured at boot.
+   Otherwise the caption grows and shrinks with the copy, the stage gets a
+   different amount of room on each project, and the frame visibly changes
+   size as you move along the shelf. Short copy centres in the reserved box
+   rather than sitting at the top of it. */
+.caption__body {
+  height: var(--body-reserve, auto);
+  display: grid;
+  align-content: center;
+  max-width: var(--measure-prose);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-leading);
+  letter-spacing: var(--text-body-tracking);
+  font-feature-settings: var(--ff-body);
+  color: var(--color-mid);
+}
+
+/* The caption changes with the work. The words never travel sideways — that
+   would fight the frame, which has to stay put — but they do settle a few
+   pixels upward as they arrive, which is what stops a plain crossfade reading
+   as a slideshow. The arrows are excluded: they belong to the page, not to
+   the project.
+
+   Coming back they arrive in reading order, each one a beat behind the last.
+   Going out they leave together — staggering an exit only makes the reader
+   wait, and the exit is a fade nobody is looking at. */
+.caption__eyebrow,
+.caption__title,
+.caption__body,
+.caption > .link {
+  transition:
+    opacity   var(--duration-swap-in) var(--ease-out) var(--swap-delay, 0ms),
+    translate var(--duration-swap-in) var(--ease-out) var(--swap-delay, 0ms);
+}
+
+/* The description sits closer to the title than the other blocks do to each
+   other, so it pulls back against the column's shared gap. */
+.caption__body { margin-top: calc(var(--gap-title-body) - var(--gap-caption)); }
+
+.caption__eyebrow { --swap-delay: 0ms; }
+.caption__title   { --swap-delay: var(--swap-stagger); }
+.caption__body    { --swap-delay: calc(var(--swap-stagger) * 2); }
+.caption > .link  { --swap-delay: calc(var(--swap-stagger) * 3); }
+
+.caption.is-swapping .caption__eyebrow,
+.caption.is-swapping .caption__title,
+.caption.is-swapping .caption__body,
+.caption.is-swapping > .link {
+  opacity: 0;
+  translate: 0 var(--swap-rise);
+  transition-duration: var(--duration-swap-out);
+  transition-delay: 0ms;
+}
+
+/* The rise is the part worth dropping; the crossfade can stay. */
+@media (prefers-reduced-motion: reduce) {
+  .caption.is-swapping .caption__eyebrow,
+  .caption.is-swapping .caption__title,
+  .caption.is-swapping .caption__body,
+  .caption.is-swapping > .link { translate: none; }
+}
+
+/* Mobile moves the prev/next arrows either side of the description. */
+.caption__nav { display: none; }
+
+@media (max-width: 640px) {
+  /* No spill on mobile — the column is already the whole screen. */
+  .stage__frame { max-width: 100%; }
+
+  .caption__nav {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-6);
+    height: var(--space-6);
+  }
+
+  .caption__body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+/* ----------------------------------------------------------------- footer */
+.footer {
+  position: relative;   /* see .caption — keeps it above the doodle layer */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Matched to the top so the page sits evenly in the viewport — and the
+     40px it gives back goes straight to the image. */
+  padding: var(--pad-bar);
+}
+
+.colophon {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+/* The two links sit together at the right, opposite the colophon — the
+   sign-off that used to space them out is gone, and `display: contents` would
+   now leave three children spreading across the bar with `twitter` stranded
+   in the middle. */
+.footer__links {
+  display: flex;
+  gap: var(--space-8, 32px);
+}
+
+@media (max-width: 640px) {
+  .footer {
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-bottom: var(--space-10);
+  }
+
+  .footer__links { gap: var(--space-6); }
+}
+
+/* ----------------------------------------------------------------- marker */
+/* A highlighter pulled across each title as it arrives. Behind the words by
+   document order rather than by a negative z-index, which would put it behind
+   the page itself. `overflow: visible` because the stroke deliberately runs
+   past the text at both ends, the way a marker overshoots. */
+.marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.marker path {
+  fill: none;
+  stroke: var(--color-marker);
+  /* Square ends, not round: the reference is a chisel nib, and a round cap
+     would give it a lozenge shape it does not have. */
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  /* `pathLength="1"` is set in script, so one dash covers the whole stroke
+     whatever its real length, and one keyframe draws any of them. */
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.caption__title.is-marking path {
+  animation: marker-draw var(--marker-draw) var(--ease-out) var(--marker-begin) forwards;
+}
+
+@keyframes marker-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* The words sit over the ink. */
+.caption__title-text { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  .caption__title.is-marking path { animation: none; stroke-dashoffset: 0; }
+}
+
+/* -------------------------------------------------------------------- ink */
+/* Sits over everything and touches nothing — the marks are drawn on it, and
+   it never takes a pointer event of its own. */
+.ink {
+  position: fixed;
+  inset: 0;
+  /* Explicit, not left to `inset` — a canvas is a replaced element, so an
+     `auto` width resolves to its own attribute size instead of stretching,
+     and the backing store is far larger than the viewport on a retina
+     screen. Without this it would render several times too big. */
+  width: 100%;
+  height: 100%;
+  z-index: 30;
+  pointer-events: none;
+}
+
+/* The pointer is a dot, the size of the mark it leaves. `auto` is the
+   fallback for anywhere an SVG cursor is refused; the hotspot is the dot's
+   centre, so ink appears under it rather than beside it. */
+.page,
+.ink,
+.squiggles,
+.props {
+  cursor: url("../../assets/cursor/dot.svg") 6 6, auto;
+}
+
+/* ----------------------------------------------------------------- cursor */
+/* Over the stage the pointer becomes the control: it points the way a click
+   will go, flipping at the page's midline. Nothing else on the page needs a
+   label for it, which is the point — it's the affordance and the button at
+   once. */
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.7;
+  transition:
+    opacity var(--duration-out) var(--ease-out),
+    scale var(--duration-out) var(--ease-out);
+}
+
+.cursor.is-visible {
+  opacity: 1;
+  scale: 1;
+  transition-duration: var(--duration-in);
+}
+
+/* The cursor says what a click will do, in the same chip the frame switch
+   wears — ink block, label dropped out of it. Both halves sit in the one grid
+   cell so the swap is a crossfade in place rather than a jump. */
+.cursor__chip {
+  grid-area: 1 / 1;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--framer-h);
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    opacity var(--duration-flip) var(--ease-out),
+    translate var(--duration-flip) var(--ease-out);
+}
+
+/* The block is on permanently — this is its resting look, not a hover. */
+.cursor__chip .link__sweep { transform: scaleX(1); }
+
+/* Each label arrives travelling the way it points. */
+.cursor__chip[data-glyph="prev"] { translate: 6px 0; }
+.cursor__chip[data-glyph="next"] { translate: -6px 0; }
+
+.cursor[data-dir="prev"] .cursor__chip[data-glyph="prev"],
+.cursor[data-dir="next"] .cursor__chip[data-glyph="next"] {
+  opacity: 1;
+  translate: 0 0;
+  /* wait for the other one to clear out */
+  transition-delay: var(--delay-flip);
+}
+
+/* While dragging, the arrow gets out of the way of the image. */
+.cursor.is-dragging { opacity: 0; }
+
+@media (hover: none), (pointer: coarse) {
+  .cursor { display: none; }
+}
+
+/* -------------------------------------------------------------- utilities */
+.u-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Kept last so it wins over the component `display` declarations. */
+@media (max-width: 640px) {
+  .u-wide { display: none; }
+}
+
+/* ------------------------------------------------------------------ scroll */
+/* The scroll container is the document itself. Each project owns one empty
+   100dvh step; mandatory snap is what gives the magnet its pull. Nothing is
+   hijacked — the browser scrolls normally and the script only reads where it
+   got to. */
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  /* The wrap hops scroll position by a whole lap, and a visible thumb would
+     leap with it and read as a glitch. The counter is the position readout. */
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar { width: 0; height: 0; }
+
+.scroll-step {
+  height: 100dvh;
+  scroll-snap-align: start;
+  /* One project per gesture, however hard the flick. `always` forbids the
+     scroll from passing over a snap point during a single intended scroll,
+     so momentum stops at the very next project instead of flying through
+     several. Native, so the browser still owns the easing and the feel —
+     nothing here intercepts a wheel or a touch. */
+  scroll-snap-stop: always;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ------------------------------------------------------------------- draw */
+/* ------------------------------------------------------------------- tune */
+/* Dev panel, only present with `?tune`. Deliberately not in the page's voice —
+   it is a tool sitting on top of the work, and should not be mistaken for
+   part of it. */
+.tune {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 30;
+  width: 236px;
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.09);
+  font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #333;
+}
+
+.tune__head,
+.tune__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 7px 10px;
+}
+
+.tune__head {
+  border-bottom: 1px solid #eee;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.tune__foot { border-top: 1px solid #eee; }
+
+.tune__body {
+  padding: 4px 10px 8px;
+  overflow-y: auto;
+}
+
+.tune.is-collapsed .tune__body,
+.tune.is-collapsed .tune__foot { display: none; }
+
+.tune__group {
+  margin: 10px 0 4px;
+  color: #aaa;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tune__row {
+  display: grid;
+  grid-template-columns: 1fr 34px;
+  align-items: center;
+  column-gap: 6px;
+  padding: 2px 0;
+}
+
+.tune__label { grid-column: 1; color: #555; }
+
+.tune__row input {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 2px 0 0;
+  accent-color: #18181b;
+}
+
+.tune__value {
+  grid-column: 2;
+  grid-row: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #999;
+}
+
+.tune__row.is-changed .tune__label,
+.tune__row.is-changed .tune__value { color: #18181b; font-weight: 600; }
+
+.tune button {
+  font: inherit;
+  padding: 3px 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #fafafa;
+  color: #333;
+  cursor: pointer;
+}
+
+.tune button:hover { background: #f0f0f0; }
+
+/* ------------------------------------------------------------------ focus */
+/* The page stays monochrome, so the focus ring is drawn in `high` — the same
+   ink as the links it lands on. Offset keeps it clear of the hover sweep. */
+:focus-visible {
+  outline: 1px solid var(--color-high);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}

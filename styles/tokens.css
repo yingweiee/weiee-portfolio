@@ -1,0 +1,284 @@
+/* ==========================================================================
+   Design tokens — extracted from Figma "Portfolio"
+   file 9lCRHsCELT72xIsxHHWGsv
+   Figma variable names are kept in comments so the two stay traceable.
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------- color */
+  /* The palette is a single neutral ramp. Emphasis, not hue, carries
+     hierarchy — high/mid/low map 1:1 to the Figma element roles. */
+  --color-surface:      #ebe8e0;            /* warm paper             */
+  --color-high:         #484235;            /* elements/light/highEm  */
+  --color-mid:          #6d6450;            /* elements/light/midEm   */
+  --color-low:          #847961;            /* elements/light/lowEm   */
+  --color-plate:        rgba(0, 0, 0, 0.05);/* empty slide plate      */
+  --color-squiggle:     #ada89b;            /* the pencil doodles, the mark, the brush */
+
+  /* The sketch in the masthead. Taller than the line of type it sits among,
+     which is the point — but it is taken out of flow, so the bar keeps the
+     height it had and the stage below it does not move.
+
+     `avatar-drop` nudges it below the bar's true centre. Optical rather than
+     geometric: the drawing's ink sits high in its own box, so squared up on
+     the middle it reads a touch above the type either side of it. */
+  --avatar-size:     28.35px;
+  --avatar-drop:         3px;
+
+  /* What a text selection is painted in. Set per project in script, from the
+     same value that colours that project's highlighter — dragging over the
+     words should feel like the same pen that struck the title. Reducto's is
+     the fallback, so the very first paint is never browser blue. */
+  --color-select: #edbdff;
+  --color-marker:       #edfa37;            /* the highlighter over the title    */
+
+  /* No accent. `fuchsia/400` exists in the Figma library but is deliberately
+     not used here — the ramp above is the whole palette. */
+
+  /* ----------------------------------------------------------- typography */
+  --font-serif: "Vollkorn", Georgia, "Times New Roman", serif;
+  /* The pixel face on the project title, the links and the frame switch. */
+  --font-pixel: "Handjet", ui-monospace, monospace;
+  /* The handwritten notes beside the doodles. PLACEHOLDER: the Figma file
+     was unreachable, so this is a stand-in for whatever face that node uses —
+     change this one line and every note follows. */
+  --font-hand:  "Caveat", "Bradley Hand", cursive;
+
+  /* Feature sets. The UI voice runs stylistic sets + no contextual
+     alternates; long-form copy only disables `calt`; display runs clean. */
+  --ff-ui:      "ss03" 1, "ss08" 1, "ss17" 1, "calt" 0;
+  --ff-body:    "calt" 0;
+  --ff-display: normal;
+
+  /* Type ramp — size / line-height / tracking, named after the Figma styles */
+  --text-display-size:   52px;  --text-display-leading: 1;     --text-display-tracking: 0;
+  --text-display-weight: 400;   /* the serif's regular italic */
+  /* Tracking is halved from the 0.02em the rest of the ramp uses. At 16px
+     that was 0.32px a character — about 51px across the longest description,
+     which left the copy one bad break away from spilling onto a fourth line
+     in a 394px column. */
+  --text-body-size:      17px;  --text-body-leading:    24px;  --text-body-tracking:    0.01em;
+  --text-meta-size:      15px;  --text-meta-leading:    24px;  --text-meta-tracking:    0.04em;
+  /* The links sit a point above the rest of the meta voice — the pixel face
+     reads a touch smaller than the italic at the same size. */
+  --text-link-size:      16px;
+  --text-note-size: 20px;   /* the handwritten notes */
+  --note-leading:   0.90;   /* tighter than solid — the design overlaps them */
+  --text-glyph-size:     15px;  --text-glyph-leading:   24px;  --text-glyph-tracking:   0;
+  --text-caption-size:   14px;  --text-caption-leading: 22px;  --text-caption-tracking: 0.04em;
+  --text-hint-size:      12px;  --text-hint-leading:    20px;  --text-hint-tracking:    0.04em;
+  --text-micro-size:  9.675px;                                                  /* the "zz" */
+
+  /* ---------------------------------------------------------------- space */
+  /* A strict 4pt scale. Only these seven steps appear in the designs. */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:  12px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-20: 80px;
+
+  /* --------------------------------------------------------------- layout */
+  --measure-page:  560px;  /* containerMain max width          */
+  --measure-prose: 426px;  /* description max width — 394 plus 8% */
+  --gutter:          0px;  /* page side padding — 20px on mobile */
+
+  /* The frame's ceiling, not its size — it takes whatever height the stage
+     is left, up to this. The artwork and the gap are then derived from the
+     frame's real size in script, so the shelf always scales as one piece. */
+  --frame-size: 570px;                 /* frame ceiling — spills the column */
+  --slide-gap:  var(--space-20);       /* between works, shelf mode only    */
+
+  /* Tunable spacing, from the Figma. The masthead and footer are full-width
+     bars with an even inset; the caption is top-light and bottom-heavy so the
+     link clears the footer. `?tune` writes to exactly these. */
+  --pad-bar:          var(--space-5);   /* 20 — masthead and footer inset */
+  --pad-caption:      20px;             /*      below the frame           */
+  /* Traded against the padding above, not added to it: the frame is already
+     at its ceiling with 3px to spare, so growing the caption at both ends
+     would come straight out of the picture. 32 + 36 is the 20 + 48 it
+     replaces — the block sits lower in the same space. */
+  /* Balances against the gap the stage leaves above the frame. The two are
+     coupled: shrinking this grows the stage, and the stage splits its slack
+     evenly above and below a frame already at its ceiling. 13 is where the
+     margin above the picture and the margin below the link come out equal. */
+  --pad-caption-end:  23px;             /*      below the visit link      */
+  --gap-caption:      26px;             /*      between the text blocks   */
+  --gap-title-body:   11px;             /*      title to description, tighter */
+
+  /* The frame switch that rides the frame's bottom edge. */
+  --framer-h: 24px;   /* chip height */
+
+  /* How far either side of the work the prev/next chip arms. It used to be
+     the whole half of the page it sat in, which put "prev project" out in the
+     margin next to a doodle, nowhere near the thing it would page away from. */
+  --nav-reach: 90px;
+
+  /* The shelf either side: how far back it sits, how much colour it keeps,
+     and the cell of the screen it is seen through. All three are live in the
+     `?tune` panel, because the three multiply and the only way to judge the
+     result is to move them against each other. */
+  --inactive-opacity:  0.35;
+  --inactive-saturate: 0;
+  --dither-cell:       2px;
+
+  /* A band of cloud along the bottom edge, redrawn as blue-noise dither.
+     Settings carried over from the Figma Dither plugin: 8 levels, brightness
+     200%, contrast 0.6, mono. Brightness above 100% is what makes it subtle —
+     it blows most of the image out to paper, so only the darker sky dithers in.
+
+     Those settings already do most of the work, so this opacity only has to
+     take the last step; stacking a low one on top of them drops the whole
+     thing below the threshold of visibility.
+
+     `backdrop-size` is the dot, in CSS px. The plugin's 1 is a pixel of its
+     own raster; here it is a pixel of the viewport, and 1 means dithering
+     over a million pixels a frame in JS. 2 is the honest default.
+
+     `backdrop-mosaic` is the tile, counted in dots: every dot in a tile takes
+     the same tone, and only the dither pattern varies inside it. The tiles
+     then sample from a slowly drifting position, which is what puts the
+     motion back in now that the footage is gone. */
+  --backdrop-opacity:  0.45;
+  --backdrop-size:     2px;
+  --backdrop-mosaic:   4;
+  /* Taller than it looks: the top of the band is masked away to nothing, so
+     only the lower ~62% reads as filled. The full page of band puts the solid
+     edge around 62vh up, with the fade running out above that. */
+  --backdrop-height:   100vh;
+
+  /* The weather. `pan` is the steady sideways drift in dots a second and is
+     what reads as cloud passing; `swell` is how far a tile reaches for its
+     tone, in tiles, and `churn` how fast that reaching turns over. Pan alone
+     slides a picture; swell alone sways on the spot. Both together drift. */
+  --backdrop-pan:      9;
+  --backdrop-swell:    5.5;
+  --backdrop-churn:    1.3;
+  --backdrop-ink:      #6d6450;   /* the dark end; the light end is the page */
+
+  /* The hover block: 16.67% of a 24px line leaves a 16px bar, and it bleeds
+     a little past the text so the glyphs are not flush to the ink. */
+  --rule-inset:  16.67%;
+  --sweep-bleed: 2px;
+
+  /* The highlighter drawn over each project title as it arrives. */
+  --marker-draw:  820ms;
+  --marker-begin: 120ms;
+
+  /* A drag leaves a mark that is gone almost at once — the page is a surface
+     to scribble on, not a canvas to fill. */
+  /* How loud the interaction cues are, 0 to 1. Cuelume synthesises them and
+     this is its global multiplier — see scripts/sound.js. Low on purpose:
+     these sit under a page someone is reading, not over it. */
+  --sound-volume: 1.0;
+
+  --ink-life:  850ms;
+  --ink-width:   2px;
+  /* The pen draws on a grid rather than on the screen: the canvas is one
+     pixel per cell and CSS blows it back up, so a stroke comes out in blocks
+     the size of this. Same trick as the backdrop's dither, and the same
+     reason — smoothing a thing that is meant to be coarse just averages the
+     character out of it.
+
+     Fractions are fine. Only the cell coordinates have to be whole; the size
+     on screen does not, and 1.5 lands on exactly 3 device pixels wherever the
+     display runs at 2x. Note the stroke is quantised to whole cells, so this
+     also sets how thin the line can get: at 1.5 an `--ink-width` of 2px comes
+     out one cell, or 1.5px. Much above 5 and a stroke stops reading as a
+     line at all. */
+  --ink-cell:  1.5px;
+
+  /* --------------------------------------------------------------- motion */
+  --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-in:  180ms;   /* hover / cursor arriving  */
+  --lift-scale:   1.02;    /* how far the picture comes forward on hover */
+  /* The objects need a bigger number to read as the same gesture: 2% of a
+     570px frame is 11px, but 2% of a 130px spray can is under 3px. */
+  --prop-lift:    1.06;
+  --duration-out: 120ms;   /* hover / cursor leaving   */
+  /* Scrolling has no duration of its own — the browser's snap decides how it
+     settles. This is only for a released swipe gliding to rest. */
+  --duration-settle: 420ms;
+
+  /* Graffiti draws itself on at load. Figma exports a marker stroke as a run
+     of brush stamps in the order the pen travelled, so revealing them in
+     sequence replays the stroke — `--splat-step` is the time between dabs,
+     which is what sets the drawing speed. */
+  --splat-begin: 260ms;   /* let the page settle first */
+  --splat-step:  2.4ms;   /* per dab — 217 dabs ≈ 520ms for the scribble */
+  --splat-fade:   90ms;   /* each dab's own landing */
+
+
+  /* The doodles draw themselves on, one path at a time, in the order the pen
+     drew them — the same idea as the graffiti, at path granularity rather
+     than brush-stamp granularity.
+
+     Only one doodle is up at a time. Each takes its turn: it draws on, holds
+     while you read it, wipes, and after a gap of empty page the next one
+     starts somewhere else. The gap matters — back to back they read as a
+     slideshow, and with a beat of nothing between them each arrival is its
+     own small event. */
+  --squiggle-begin: 1400ms;  /* stillness on load before the first one     */
+  --squiggle-draw:   600ms;  /* the pen stroke itself                      */
+  --squiggle-hold:  2800ms;  /* how long it stays once the note is written */
+  --squiggle-wipe:   620ms;  /* the clear                                  */
+  --squiggle-gap:   1500ms;  /* empty page before the next one arrives     */
+  --squiggle-step:    44ms;  /* between paths inside one doodle            */
+
+  /* The note is written only once the drawing is finished — the two are one
+     gesture in sequence, not at once, so the pen is never in two places.
+     Its delay is set per doodle in script, because how long a doodle takes
+     depends on how many paths it has.
+
+     A word at a time, not a sweep across the line. Reading happens in words,
+     so a note that arrives in words can be read as it lands; a wipe crossing
+     mid-word gives you half a word to look at, which is worse than either.
+     A long note still takes longer than a short one, because the stagger is
+     per word. */
+  --note-word:    117ms;  /* between one word and the next          */
+  --note-word-in: 216ms;  /* one word arriving                      */
+
+  /* How much of the drawing's tail the writing overlaps. Waiting for the
+     last stroke to land leaves a hole: by then the drawing has read as
+     finished for a moment, and the pause registers as the page stalling.
+     Starting the first word while the last details are still going reads as
+     one continuous gesture. A fraction rather than a fixed lead, so it
+     scales with doodles that take very different times to draw. */
+  --note-overlap: 0.45;
+
+  /* And how fast a project flicks through its own pictures while it is up.
+     Fast enough to read as a thumbed flipbook rather than a slideshow — five
+     of them go by roughly four times inside one 3s hold. */
+  --work-cycle: 272ms;
+  /* A beat on the first picture when a project arrives, before the set starts
+     turning over. The first one is the one that says what the project is;
+     without this it is gone before you have read it. Not repeated when the
+     pointer leaves the frame — by then you have had your look. */
+  --work-dwell: 900ms;
+
+
+  /* The caption clears fast and returns gently, landing before the image
+     finishes settling — the words should never be the thing you wait on. */
+  --duration-swap-out: 140ms;
+  --duration-swap-in:  260ms;
+  /* The words settle up into place rather than just appearing, and arrive in
+     reading order — eyebrow, title, description, link. */
+  --swap-rise:  8px;
+  --swap-stagger: 45ms;
+
+  /* The cursor's arrow flips as you cross the midline. The outgoing arrow
+     leaves before the incoming one arrives, or the two overlap at half
+     opacity and read as a single ambiguous "↔". */
+  --duration-flip: 90ms;
+  --delay-flip:    70ms;
+}
+
+/* Below the point where the 600px frame stops fitting, the layout
+   switches to its mobile arrangement. One breakpoint, nothing else. */
+@media (max-width: 640px) {
+  :root {
+    --gutter: var(--space-5);
+  }
+}
