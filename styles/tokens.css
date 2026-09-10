@@ -112,6 +112,7 @@
   --pad-caption-end:  23px;             /*      below the visit link      */
   --gap-caption:      26px;             /*      between the text blocks   */
   --gap-title-body:   11px;             /*      title to description, tighter */
+  --gap-body-link:    var(--gap-caption); /*      description to visit link  */
 
   /* The frame switch that rides the frame's bottom edge. */
   --framer-h: 24px;   /* chip height */
@@ -290,12 +291,24 @@
        the frame. Everything here is caption-only (the masthead and footer
        read from the meta tokens, which are left alone), and the height it
        gives up goes to the stage, which is the frame. */
-    --text-display-size:    36px;
+    --text-display-size:    42px;
     --text-body-size:       14px;  --text-body-leading:    20px;
     --text-eyebrow-size:    12px;  --text-eyebrow-leading: 18px;
     --gap-caption:          16px;
     --gap-title-body:        6px;
+    --gap-body-link:        10px;
     --pad-caption:          14px;
     --pad-caption-end:      14px;
+
+    /* How far the frame's box stands in from the screen edge. Set so the
+       monitor's *visible* bezel lines up with the navbar's text, not so the
+       box does: the PNG carries a transparent margin of 3.4% a side, and the
+       monitor is drawn at 1.01. On a 393px screen a 375px box paints at 379,
+       and 379 × 0.034 puts the bezel 20px in — the same as --pad-bar. The
+       other frames' margins differ a little (vending 2.2%, terminal 4.0%),
+       so they sit within a few px of that line rather than on it. */
+    --stage-inset: 9px;
+    /* The footer's rows pull in to the bar's own inset. */
+    --pad-footer-end: var(--pad-bar);
   }
 }

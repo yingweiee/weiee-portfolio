@@ -839,7 +839,7 @@ body {
      box — and fitSlides, measuring from the box's top, seated the artwork
      30px above where the frame actually was. It showed as a band of picture
      over the monitor's bezel. Square stage, square frame, same top edge. */
-  max-height: min(var(--frame-size), 100vw);
+  max-height: min(var(--frame-size), calc(100vw - 2 * var(--stage-inset, 0px)));
   min-height: 140px;
   display: flex;
   align-items: center;
@@ -1181,6 +1181,11 @@ body {
 /* The description sits closer to the title than the other blocks do to each
    other, so it pulls back against the column's shared gap. */
 .caption__body { margin-top: calc(var(--gap-title-body) - var(--gap-caption)); }
+/* Same device for the visit link: its own distance from the description,
+   expressed against the column's shared gap. Equal to that gap on desktop,
+   so nothing moves there; tighter on a phone, where the link was drifting
+   away from the copy it belongs to. */
+.caption > .link { margin-top: calc(var(--gap-body-link) - var(--gap-caption)); }
 
 .caption__eyebrow { --swap-delay: 0ms; }
 .caption__title   { --swap-delay: var(--swap-stagger); }
@@ -1256,10 +1261,16 @@ body {
   .footer {
     flex-direction: column;
     gap: var(--space-2);
-    padding-bottom: var(--space-10);
+    padding-bottom: var(--pad-footer-end);
   }
 
-  .footer__links { gap: var(--space-6); }
+  /* Edge to edge within the bar, the three of them spread rather than
+     bunched in the middle — the same width the masthead's row takes. */
+  .footer__links {
+    width: 100%;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
 }
 
 /* ----------------------------------------------------------------- marker */
