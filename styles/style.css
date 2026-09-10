@@ -1268,6 +1268,23 @@ body {
      three links and nothing else. */
   .colophon { display: none; }
 
+  /* No scrolling by hand on a phone. The document is still the source of
+     truth for which project is showing, and it still moves — by script, one
+     step per swipe, arrow or tap — but a finger can no longer drag it, which
+     takes the browser bar, its resize, and mandatory snap's second opinions
+     out of the gesture entirely. `touch-action` on the page is what stops
+     the drag reaching the scroller; `overflow` is the belt to its braces, on
+     both html and body because iOS has honoured one or the other over the
+     years. Snap is off here because every move is a programmatic jump to an
+     exact step, and snap "correcting" one of those is the bug this replaces.
+
+     Where the swipe is read — the stage, and now the caption — pan-y meets
+     the page's pan-x and the intersection is none, so every touch there goes
+     to the pointer handlers. Elsewhere the page keeps pinch-zoom. */
+  html, body { overflow: hidden; }
+  .page { touch-action: pan-x pinch-zoom; }
+  .caption { touch-action: pan-y; }
+
   /* Edge to edge within the bar, the three of them spread rather than
      bunched in the middle — the same width the masthead's row takes. */
   .footer__links {
@@ -1489,6 +1506,14 @@ html {
 }
 
 html::-webkit-scrollbar { width: 0; height: 0; }
+
+/* On a phone every move is a programmatic jump to an exact step and there is
+   no scrolling by hand (see the mobile block above), so snap has nothing to
+   do and one thing it could get wrong. Placed after the rule it overrides:
+   same specificity, and the later declaration wins. */
+@media (max-width: 640px) {
+  html { scroll-snap-type: none; }
+}
 
 .scroll-step {
   /* The *large* viewport, not the dynamic one. `dvh` tracks the browser bar

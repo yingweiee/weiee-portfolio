@@ -1333,13 +1333,34 @@
   let axis = null;           // null until the gesture commits to one
   let draggedAt = -Infinity; // when a swipe last ended, to disown its click
 
-  stage.addEventListener('pointerdown', (e) => {
+  /* Which element holds the pointer for the gesture in progress. The stage
+     for a mouse or a finger; the caption for a finger only — a mouse dragged
+     across the description is selecting the copy, and must keep doing so. */
+  let dragHost = null;
+
+  const beginSwipe = (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.pointerType === 'mouse' && e.currentTarget !== stage) return;
     dragId = e.pointerId;
+    dragHost = e.currentTarget;
     startX = e.clientX;
     startY = e.clientY;
     axis = null;
-  });
+  };
+  stage.addEventListener('pointerdown', beginSwipe);
+  /* The caption swipes too. On a phone the frame is less than half the
+     screen, and a thumb resting on the title or the copy expects the same
+     gesture to work there. */
+  caption.addEventListener('pointerdown', beginSwipe);
+
+  /* A swipe that starts or ends on the visit link must not follow it. The
+     stage has the same guard on its own click; this is the caption's. */
+  caption.addEventListener('click', (e) => {
+    if (performance.now() - draggedAt < 300) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, true);
 
   window.addEventListener('pointermove', (e) => {
     if (e.pointerId !== dragId) return;
@@ -1354,7 +1375,7 @@
       strip.classList.remove('is-settling');
       /* Throws if the pointer is already gone — survivable, and letting it
          escape would abandon the gesture midway. */
-      try { stage.setPointerCapture(dragId); } catch { /* not fatal */ }
+      try { (dragHost || stage).setPointerCapture(dragId); } catch { /* not fatal */ }
       cursor.classList.add('is-dragging');
     }
     if (axis !== 'x') return;
