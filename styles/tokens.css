@@ -298,7 +298,11 @@
     --gap-title-body:        6px;
     --gap-body-link:        10px;
     --pad-caption:          14px;
-    --pad-caption-end:      14px;
+    /* Nearly none. The free height is split above the stage and below the
+       caption, and this padding is counted as caption — with 14px here the
+       group measured centred but read 10px high, the frame's own transparent
+       top margin taking care of the other side. */
+    --pad-caption-end:       4px;
 
     /* How far the frame's box stands in from the screen edge. Set so the
        monitor's *visible* bezel lines up with the navbar's text, not so the

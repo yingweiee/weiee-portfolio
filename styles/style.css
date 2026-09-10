@@ -1264,6 +1264,10 @@ body {
     padding-bottom: var(--pad-footer-end);
   }
 
+  /* The sign-off is a desktop line. On a phone the footer is one row of
+     three links and nothing else. */
+  .colophon { display: none; }
+
   /* Edge to edge within the bar, the three of them spread rather than
      bunched in the middle — the same width the masthead's row takes. */
   .footer__links {
@@ -1473,7 +1477,7 @@ button {
 
 /* ------------------------------------------------------------------ scroll */
 /* The scroll container is the document itself. Each project owns one empty
-   100dvh step; mandatory snap is what gives the magnet its pull. Nothing is
+   100lvh step; mandatory snap is what gives the magnet its pull. Nothing is
    hijacked — the browser scrolls normally and the script only reads where it
    got to. */
 html {
@@ -1487,7 +1491,17 @@ html {
 html::-webkit-scrollbar { width: 0; height: 0; }
 
 .scroll-step {
-  height: 100dvh;
+  /* The *large* viewport, not the dynamic one. `dvh` tracks the browser bar
+     as it slides away mid-scroll, so every step rescaled under a fixed
+     scrollY, the strip re-rendered at a position it had not been dragged to,
+     and the resize handler then re-seated the page with an instant jump —
+     two jerks on every bar toggle. `lvh` is the bar-hidden height and does
+     not move; the visible viewport is never taller than it, so the buffer
+     step at the far end stays reachable and the wrap still fires. (`svh`,
+     the other stable unit, would leave that buffer short of the document's
+     end when the bar is hidden, and the wrap would strand.) */
+  height: 100vh;
+  height: 100lvh;
   scroll-snap-align: start;
   /* One project per gesture, however hard the flick. `always` forbids the
      scroll from passing over a snap point during a single intended scroll,

@@ -1083,16 +1083,15 @@
 
      Two extra buffer steps, one at each end, are what let it wrap. */
   const STEPS = PROJECTS.length + 2;
-  let lastHeight = 0;
+  let lastStep = 0;
   let firstStep = null;
 
   /* Measured off a real step rather than taken from `window.innerHeight`.
-     The steps are laid out in `100dvh`, and the two are not always the same
-     number — browsers with auto-hiding chrome resolve `dvh` against a
-     different height. Dividing by the wrong one puts every snap point
-     slightly off, the error accumulates with each step, and the strip ends up
-     resting between two works: the current one hangs past the frame's edge
-     and reads as sitting on top of it. */
+     The steps are laid out in `100lvh`, and on a phone the two differ by the
+     height of the browser bar whenever it is showing. Dividing by the wrong
+     one puts every snap point slightly off, the error accumulates with each
+     step, and the strip ends up resting between two works: the current one
+     hangs past the frame's edge and reads as sitting on top of it. */
   const stepSize = () => (firstStep && firstStep.getBoundingClientRect().height)
     || window.innerHeight;
   /* Step 0 is the leading buffer, so project i sits on step i + 1. */
@@ -2807,7 +2806,7 @@
   /* Web fonts change how the copy wraps, so the reservation is only final
      once they have loaded. */
   if (document.fonts) document.fonts.ready.then(() => { reserveCaption(); fitSlides(); });
-  lastHeight = window.innerHeight;
+  lastStep = stepSize();
   new ResizeObserver(fitSlides).observe(frameImg);
 
   /* Read straight off the scroll event. The work is a handful of style
@@ -2840,16 +2839,21 @@
     fitSlides();
   }).observe(caption);
 
-  /* Mobile browsers fire resize when the URL bar slides away; only re-seat
-     the scroll position for changes big enough to be real. */
+  /* Mobile browsers fire resize when the URL bar slides away. Re-seat the
+     scroll position only when the *step* has changed size — a rotation, a
+     real window resize — never for the bar. The steps are laid out in `lvh`
+     so the bar does not move them, and the old test, a 40px change in
+     `innerHeight`, was sized for Android's bar and let iOS's bigger one
+     through: an instant `scrollTo` in the middle of a flick. */
   window.addEventListener('resize', () => {
     /* Belt and braces alongside the observer: observer callbacks are
        delivered at rendering opportunities, which a background tab does not
        get, and stale slide sizes would outlast the resize. */
     reserveCaption();
     fitSlides();
-    if (Math.abs(window.innerHeight - lastHeight) < 40) return;
-    lastHeight = window.innerHeight;
+    const step = stepSize();
+    if (Math.abs(step - lastStep) < 1) return;
+    lastStep = step;
     window.scrollTo({ top: stepFor(index), behavior: 'instant' });
   });
 
