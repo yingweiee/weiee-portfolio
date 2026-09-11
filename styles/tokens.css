@@ -100,6 +100,7 @@
      bars with an even inset; the caption is top-light and bottom-heavy so the
      link clears the footer. `?tune` writes to exactly these. */
   --pad-bar:          var(--space-5);   /* 20 — masthead and footer inset */
+  --gap-nav:          var(--space-3);   /* 12 — arrows to the counter     */
   --pad-caption:      20px;             /*      below the frame           */
   /* Traded against the padding above, not added to it: the frame is already
      at its ceiling with 3px to spare, so growing the caption at both ends
@@ -311,6 +312,10 @@
        and 379 × 0.034 puts the bezel 20px in — the same as --pad-bar. The
        other frames' margins differ a little (vending 2.2%, terminal 4.0%),
        so they sit within a few px of that line rather than on it. */
+    /* Tighter around the counter, so the arrows and the numbers read as one
+       group at the right and the middle of the bar keeps its air. */
+    --gap-nav: var(--space-1);
+
     --stage-inset: 9px;
     /* The footer's rows pull in to the bar's own inset. */
     --pad-footer-end: var(--pad-bar);
